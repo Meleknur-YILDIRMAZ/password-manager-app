@@ -1,0 +1,69 @@
+[package]
+name = "sifre-yoneticisi"
+version = "0.1.0"
+description = "Yerel Şifre Yöneticisi — Offline-first, end-to-end şifreli"
+authors = ["Yildiz"]
+edition = "2021"
+
+[lib]
+name = "sifre_yoneticisi_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# ─── Tauri ───────────────────────────────────────────────────────────────────
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+
+# ─── Serializasyon ───────────────────────────────────────────────────────────
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# ─── Güvenli Hata Yönetimi ───────────────────────────────────────────────────
+thiserror = "1"
+
+# ─── Şifreleme ───────────────────────────────────────────────────────────────
+# ring: AES-256-GCM şifreleme, SHA-1 (HIBP için), SystemRandom
+ring = "0.17"
+
+# argon2: Argon2id anahtar türetme (Password Hashing Competition birincisi)
+argon2 = { version = "0.5", features = ["std"] }
+
+# zeroize: Hassas verilerin bellekten güvenli silinmesi
+zeroize = { version = "1.8", features = ["derive"] }
+
+# base64: IV+ciphertext binary → TEXT dönüşümü
+base64 = "0.22"
+
+# hex: HIBP SHA-1 hex encoding
+hex = "0.4"
+
+# ─── Veritabanı ──────────────────────────────────────────────────────────────
+# rusqlite: SQLite, bundled özelliği ile harici SQLite gerekmez
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# ─── TOTP ────────────────────────────────────────────────────────────────────
+# RFC 6238 TOTP implementasyonu için gerekli bileşenler
+hmac = "0.12"
+sha1 = "0.10"
+base32 = "0.5"
+
+# ─── Yardımcılar ─────────────────────────────────────────────────────────────
+# uuid: Kayıt ID'leri için UUID v4
+uuid = { version = "1", features = ["v4"] }
+
+# reqwest: HIBP API HTTP isteği (async)
+reqwest = { version = "0.12", features = ["json"] }
+
+# tokio: Async runtime (reqwest için)
+tokio = { version = "1", features = ["full"] }
+
+[profile.release]
+# Release build optimizasyonları
+opt-level = "z"      # Boyut optimizasyonu
+lto = true           # Link-time optimization
+codegen-units = 1    # Daha küçük binary
+panic = "abort"      # Panic handler boyutu küçültür
+strip = true         # Debug sembollerini kaldır
